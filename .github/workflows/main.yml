@@ -11,7 +11,7 @@ on:
 jobs:
   generate-post:
     runs-on: ubuntu-latest
-    environment: linkedin-bot-env
+    environment: bot-linkedin-env
     steps:
     - name: 📥 Checkout du code
       uses: actions/checkout@v4
