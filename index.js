@@ -17,11 +17,6 @@ async function main() {
     try {
         console.log('🚀 LinkedIn Post Generator - Démarrage...');
         
-        // Vérification de la clé API
-        if (!process.env.GEMINI_API_KEY) {
-            throw new Error('❌ GEMINI_API_KEY est requise dans les variables d\'environnement');
-        }
-
         // Initialisation du générateur
         const generator = new LinkedInPostGenerator();
         
