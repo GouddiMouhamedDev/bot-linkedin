@@ -1,204 +1,231 @@
-# LinkedIn Automation Bot
+# LinkedIn Post Generator v2.0
 
-A Node.js-based LinkedIn automation bot that generates and posts professional content using Google Gemini AI and Puppeteer browser automation.
+🤖 **Générateur automatique de posts LinkedIn avec Gemini AI**
 
-## Features
+Ce projet génère automatiquement des posts LinkedIn professionnels et engageants en utilisant l'intelligence artificielle Gemini de Google. Les posts sont sauvegardés dans un fichier JSON structuré pour une intégration facile avec n8n ou d'autres outils d'automatisation.
 
-- 🤖 **AI-Powered Content Generation**: Uses Google Gemini AI to generate engaging LinkedIn posts
-- 📅 **Automated Scheduling**: GitHub Actions workflow for daily automated posting
-- 📊 **Content History Tracking**: Prevents duplicate topics and maintains posting history
-- 🔒 **Secure Credentials**: Environment variable-based credential management
-- 🌍 **GitHub Actions Integration**: Automated CI/CD pipeline for seamless deployment
+## ✨ Fonctionnalités
 
-## Project Structure
+- 🤖 **Génération IA** : Utilise Gemini AI pour créer des posts de qualité
+- ⏰ **Automatisation** : Exécution quotidienne automatique via GitHub Actions
+- 📄 **Sortie JSON** : Fichier structuré pour n8n et autres outils
+- 🎯 **Personnalisable** : Sujets et paramètres configurables
+- 🇫🇷 **Français** : Posts optimisés pour le marché francophone
+- 📊 **Suivi** : Historique des posts générés
+- 🔄 **Anti-répétition** : Évite la répétition des sujets
 
-```
-linkedin-bot/
-├── .github/workflows/main.yml    # GitHub Actions workflow
-├── .gitignore                    # Git ignore rules
-├── .env.example                  # Environment variables template
-├── data.json                     # Topics and posting history
-├── generator.js                  # AI post generation logic
-├── poster.js                     # LinkedIn automation script
-├── package.json                  # Node.js dependencies
-└── README.md                     # This file
-```
+## 🚀 Installation rapide
 
-## Setup Instructions
-
-### 1. Prerequisites
-
-- Node.js 18+ installed
-- A LinkedIn account (preferably a dedicated one for automation)
-- Google Gemini AI API key
-- GitHub repository (for automation)
-
-### 2. Environment Configuration
-
-1. Copy the environment template:
-   ```bash
-   cp .env.example .env
-   ```
-
-2. Edit `.env` file with your credentials:
-   ```env
-   GEMINI_API_KEY=your_gemini_api_key_here
-   LINKEDIN_EMAIL=your_linkedin_email@example.com
-   LINKEDIN_PASSWORD=your_linkedin_password
-   ```
-
-### 3. Local Installation
+### 1. Cloner le repository
 
 ```bash
-# Install dependencies
+git clone <votre-repo>
+cd bot-linkedin
+```
+
+### 2. Installer les dépendances
+
+```bash
 npm install
-
-# Generate a post (requires GEMINI_API_KEY)
-npm run generate
-
-# Post to LinkedIn (requires LINKEDIN_EMAIL and LINKEDIN_PASSWORD)
-npm run post
-
-# Run both generate and post
-npm start
 ```
 
-### 4. GitHub Secrets Configuration
+### 3. Configuration
 
-Add the following secrets to your GitHub repository:
-
-1. Go to your repository → Settings → Secrets and variables → Actions
-2. Click "New repository secret" and add:
-   - `GEMINI_API_KEY`: Your Gemini AI API key
-   - `LINKEDIN_EMAIL`: Your LinkedIn email
-   - `LINKEDIN_PASSWORD`: Your LinkedIn password
-
-### 5. Enable GitHub Actions
-
-1. The workflow is configured in `.github/workflows/main.yml`
-2. It runs daily at 9 AM UTC
-3. Can be triggered manually from the Actions tab
-
-## Usage
-
-### Manual Execution
+Copiez `.env.exemple` vers `.env` et ajoutez votre clé API :
 
 ```bash
-# Generate and post in one command
-npm start
-
-# Or run steps individually
-npm run generate  # Generate content using AI
-npm run post      # Post to LinkedIn
+cp .env.exemple .env
 ```
 
-### Automated Execution
+Éditez `.env` :
+```bash
+GEMINI_API_KEY=votre_cle_api_gemini_ici
+```
 
-The bot runs automatically via GitHub Actions:
-- **Schedule**: Daily at 9 AM UTC
-- **Manual Trigger**: Available in GitHub Actions tab
-- **Push Trigger**: Runs on main branch pushes
+### 4. Test local
 
-## Configuration
+```bash
+npm run generate
+```
 
-### Topics Management
+## 📋 Utilisation
 
-Edit `data.json` to customize:
-- `topics`: Array of LinkedIn post topics
-- `settings`: Post generation preferences
-  - `postLength`: Min/max character limits
-  - `tone`: Professional tone settings
-  - `maxHistoryLength`: History tracking limit
+### Génération manuelle
 
-### Post Settings
+```bash
+npm start
+# ou
+npm run generate
+```
+
+### Sortie automatique
+
+Le fichier `linkedin-post-for-n8n.json` est généré avec la structure suivante :
 
 ```json
 {
-  "settings": {
-    "maxHistoryLength": 50,
-    "postLength": {
-      "min": 1300,
-      "max": 1500
-    },
-    "tone": "professional",
-    "includeHashtags": true,
-    "maxHashtags": 5
+  "metadata": {
+    "generated_at": "2026-01-03T22:00:00.000Z",
+    "generator_version": "2.0.0",
+    "timezone": "UTC",
+    "status": "ready_for_publication"
+  },
+  "post": {
+    "topic": "Développement professionnel",
+    "content": "Contenu du post LinkedIn...",
+    "hashtags": ["#Professionnel", "#Développement"],
+    "length": 1450,
+    "generated_at": "2026-01-03T22:00:00.000Z"
+  },
+  "instructions": {
+    "publication_platform": "LinkedIn",
+    "next_steps": [
+      "1. Vérifier le contenu du post",
+      "2. Personnaliser si nécessaire",
+      "3. Publier via n8n ou interface LinkedIn"
+    ]
   }
 }
 ```
 
-## Security Considerations
+## ⚙️ Configuration GitHub Actions
 
-- ⚠️ **Use a dedicated LinkedIn account** for automation
-- 🔐 **Never commit sensitive credentials** to version control
-- 🔒 **Enable 2FA** on your LinkedIn account
-- 📝 **Review posts** before automation in production
-- 🌍 **Comply with LinkedIn's Terms of Service**
+### 1. Secrets requis
 
-## Dependencies
+Dans votre repository GitHub, ajoutez le secret :
+- **Nom** : `GEMINI_API_KEY`
+- **Valeur** : votre clé API Gemini
 
-- **@google/generative-ai**: Gemini AI integration
-- **puppeteer**: LinkedIn browser automation
-- **dotenv**: Environment variable management
+### 2. Exécution automatique
 
-## API Keys Setup
+Le workflow s'exécute :
+- **🕘 Tous les jours à 9h UTC** (10h heure française)
+- **👆 Manuellement** via GitHub Actions
+- **📤 Sur push** vers la branche main
 
-### Google Gemini AI
-1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Create a new API key
-3. Add to GitHub secrets as `GEMINI_API_KEY`
+### 3. Logs et monitoring
 
-### LinkedIn Account
-1. Use a dedicated account for automation
-2. Enable 2FA (manual intervention may be required)
-3. Store credentials securely in GitHub secrets
+Les logs GitHub Actions incluent :
+- 📊 Statistiques du post généré
+- 📄 Contenu complet du fichier JSON
+- ✅ Statut de réussite/échec
 
-## Troubleshooting
+## 📁 Structure du projet
 
-### Common Issues
-
-1. **2FA Required**: Manual intervention needed for LinkedIn login
-2. **API Rate Limits**: Gemini AI has usage limits
-3. **LinkedIn Detection**: Account may be flagged for automation
-4. **Missing Dependencies**: Run `npm install` again
-
-### Logs and Debugging
-
-- Check GitHub Actions logs for automation issues
-- Review console output for local execution
-- Monitor LinkedIn account for automation detection
-
-## Development
-
-### Adding New Features
-
-1. Edit respective JavaScript files
-2. Update `package.json` if adding dependencies
-3. Test locally before pushing
-4. Update this README if needed
-
-### Testing
-
-```bash
-# Test post generation only
-npm run generate
-
-# Test LinkedIn login (will not post)
-# Edit poster.js to skip actual posting for testing
+```
+bot-linkedin/
+├── 📄 index.js                 # Point d'entrée principal
+├── 📁 lib/
+│   └── 📄 generator.js         # Logique de génération
+├── 📄 data.json                # Configuration et historique
+├── 📄 .env                     # Variables d'environnement
+├── 📄 package.json             # Dépendances Node.js
+├── 📄 CONFIG.md                # Guide de configuration
+└── 📁 .github/
+    └── 📁 workflows/
+        └── 📄 main.yml         # Workflow GitHub Actions
 ```
 
-## License
+## 🎨 Personnalisation
 
-MIT License - see LICENSE file for details
+### Modifier les sujets
 
-## Contributing
+Éditez `data.json` :
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+```json
+{
+  "topics": [
+    "Vos sujets personnalisés",
+    "Développement professionnel",
+    "Innovation technologique"
+  ]
+}
+```
 
-## Disclaimer
+### Ajuster les paramètres
 
-This tool is for educational and personal use only. Users are responsible for complying with LinkedIn's Terms of Service and applicable laws. The developers are not liable for any misuse of this automation tool.
+Dans `data.json`, section `settings` :
+
+```json
+{
+  "settings": {
+    "maxHistoryLength": 30,        # Nombre de posts conservés
+    "postLength": {
+      "min": 1300,                # Longueur minimale
+      "max": 1500                 # Longueur maximale
+    },
+    "tone": "professionnel",       # Ton des posts
+    "includeHashtags": true,       # Inclure des hashtags
+    "maxHashtags": 5              # Nombre maximum de hashtags
+  }
+}
+```
+
+## 🔧 Dépannage
+
+### Erreur "GEMINI_API_KEY est requise"
+
+✅ **Solution** : Vérifiez que la variable `GEMINI_API_KEY` est définie dans votre `.env` ou dans les secrets GitHub Actions.
+
+### Le post n'est pas généré
+
+✅ **Vérifications** :
+1. Clé API Gemini valide
+2. Quotas API non dépassés
+3. Logs GitHub Actions pour plus de détails
+
+### Commits GitHub échoués
+
+✅ **Solution** : Vérifiez que le secret `GITHUB_TOKEN` a les bonnes permissions.
+
+## 📈 Intégration n8n
+
+### Workflow n8n recommandé
+
+1. **Trigger** : Scheduled Trigger (quotidien à 10h)
+2. **Read File** : Lire `linkedin-post-for-n8n.json`
+3. **Condition** : Vérifier `metadata.status === "ready_for_publication"`
+4. **Action** : Publier sur LinkedIn (via API ou navigateur)
+5. **Cleanup** : Marquer le post comme publié
+
+### Exemple de node n8n
+
+```javascript
+// Node Function pour extraire le contenu
+const data = $input.first().json;
+return [{
+  json: {
+    content: data.post.content,
+    hashtags: data.post.hashtags.join(' '),
+    topic: data.post.topic,
+    length: data.post.length
+  }
+}];
+```
+
+## 🆕 v2.0 - Nouveautés
+
+- ✅ **Architecture simplifiée** : Code plus propre et maintenable
+- ✅ **Sortie JSON optimisée** : Structure parfaite pour n8n
+- ✅ **Workflow GitHub Actions modernisé** : Meilleure gestion des erreurs
+- ✅ **Documentation améliorée** : Guides détaillés
+- ✅ **Performance optimisée** : Génération plus rapide
+- ✅ **Support français natif** : Posts entièrement en français
+
+## 📄 Licence
+
+MIT License - Voir le fichier LICENSE pour plus de détails.
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues ! N'hésitez pas à :
+- 🐛 Signaler des bugs
+- 💡 Proposer des améliorations
+- 📖 Améliorer la documentation
+
+## 📞 Support
+
+Pour toute question ou problème :
+1. Consultez la [documentation CONFIG.md](CONFIG.md)
+2. Vérifiez les logs GitHub Actions
+3. Ouvrez une issue sur le repository

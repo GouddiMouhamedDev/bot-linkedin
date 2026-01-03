@@ -1,61 +1,53 @@
-name: LinkedIn Bot Automation
+name: LinkedIn Post Generator
 
 on:
   schedule:
-    # Run daily at 9 AM UTC (can be adjusted)
+    # Exécution quotidienne à 9h UTC (10h heure française)
     - cron: '0 9 * * *'
-  workflow_dispatch:  # Allow manual triggering
+  workflow_dispatch:  # Déclenchement manuel
   push:
     branches: [ main ]
 
 jobs:
-  linkedin-post:
+  generate-post:
     runs-on: ubuntu-latest
-    environment: bot-linkedin-env
+    environment: linkedin-bot-env
     steps:
-    - name: Checkout code
+    - name: 📥 Checkout du code
       uses: actions/checkout@v4
       
-    - name: Setup Node.js
+    - name: ⚙️ Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
         
-    - name: Install Chrome dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y wget gnupg
-        wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-        echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-        sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
-        
-    - name: Install dependencies
+    - name: 📦 Installation des dépendances
       run: npm install
-      env:
-        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: false
       
-    - name: Generate LinkedIn post
+    - name: 🤖 Génération du post LinkedIn
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: npm run generate
       
-    - name: Post to LinkedIn
-      env:
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        LINKEDIN_EMAIL: ${{ secrets.LINKEDIN_EMAIL }}
-        LINKEDIN_PASSWORD: ${{ secrets.LINKEDIN_PASSWORD }}
-        LINKEDIN_COOKIES: ${{ secrets.LINKEDIN_COOKIES }}
-        CHROME_PATH: /usr/bin/google-chrome-stable
-        PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome-stable
-        CHROME_BIN: /usr/bin/google-chrome-stable
-      run: npm run post
-      
-    - name: Commit data changes
+    - name: 📝 Affichage du résultat
+      run: |
+        echo "📄 Fichier généré :"
+        cat linkedin-post-for-n8n.json || echo "Fichier non trouvé"
+        echo ""
+        echo "📊 Statistiques du post :"
+        if [ -f linkedin-post-for-n8n.json ]; then
+          echo "Longueur du contenu: $(cat linkedin-post-for-n8n.json | jq -r '.post.content | length' 2>/dev/null || echo 'N/A') caractères"
+          echo "Nombre de hashtags: $(cat linkedin-post-for-n8n.json | jq -r '.post.hashtags | length' 2>/dev/null || echo 'N/A')"
+          echo "Sujet: $(cat linkedin-post-for-n8n.json | jq -r '.post.topic' 2>/dev/null || echo 'N/A')"
+        fi
+        
+    - name: 💾 Commit des modifications
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
-        commit_message: "🤖 Auto-update LinkedIn post data and history"
-        file_pattern: data.json
+        commit_message: "🤖 Auto-génération du post LinkedIn - $(date +'%Y-%m-%d %H:%M')"
+        file_pattern: |
+          data.json
+          linkedin-post-for-n8n.json
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
