@@ -1,82 +1,48 @@
-#!/usr/bin/env node
-
-/**
- * LinkedIn Post Generator
- * Générateur automatique de posts LinkedIn avec Gemini AI
- * Sauvegarde le résultat dans un fichier JSON structuré pour n8n
- */
-
 require('dotenv').config();
-const fs = require('fs').promises;
+const fs = require('fs');
 const path = require('path');
-const { LinkedInPostGenerator } = require('./lib/generator');
+const LinkedInPostGenerator = require("./lib/generator");
 
-const OUTPUT_FILE = 'linkedin-post-for-n8n.json';
+const DATA_PATH = path.join(__dirname, 'data.json');
 
 async function main() {
-    try {
-        console.log('🚀 LinkedIn Post Generator - Démarrage...');
-        
-        // Initialisation du générateur
-        const generator = new LinkedInPostGenerator();
-        
-        // Génération du post
-        const postData = await generator.generate();
-        
-        // Sauvegarde pour n8n
-        const n8nData = {
-            metadata: {
-                generated_at: new Date().toISOString(),
-                generator_version: '2.0.0',
-                timezone: 'UTC',
-                status: 'ready_for_publication'
-            },
-            post: postData,
-            instructions: {
-                publication_platform: 'LinkedIn',
-                next_steps: [
-                    '1. Vérifier le contenu du post',
-                    '2. Personnaliser si nécessaire',
-                    '3. Publier via n8n ou interface LinkedIn'
-                ]
-            }
-        };
+    const data = JSON.parse(fs.readFileSync(DATA_PATH, 'utf8'));
 
-        // Écriture du fichier de sortie
-        await fs.writeFile(OUTPUT_FILE, JSON.stringify(n8nData, null, 2));
-        
-        console.log('✅ Post généré avec succès !');
-        console.log(`📄 Fichier de sortie: ${OUTPUT_FILE}`);
-        console.log(`📊 Longueur: ${postData.content.length} caractères`);
-        console.log(`🏷️ Hashtags: ${postData.hashtags.length}`);
-        console.log(`📅 Sujet: ${postData.topic}`);
-        
-        // Affichage du post généré
-        console.log('\n--- POST GÉNÉRÉ ---');
-        console.log(postData.content);
-        console.log('--- FIN DU POST ---\n');
-        
+    // On extrait les titres déjà traités pour filtrer
+    const usedTitles = data.history.map(entry => entry.topic);
+    const availableTopics = data.topics.filter(t => !usedTitles.includes(t));
+
+    if (availableTopics.length === 0) {
+        console.log("❌ Plus de sujets vierges.");
+        return;
+    }
+
+    try {
+        const generator = new LinkedInPostGenerator(process.env.GEMINI_API_KEY);
+
+        // L'IA génère l'objet { topic, content }
+        const generatedEntry = await generator.chooseAndGenerate(availableTopics, data.history, data.settings);
+
+        console.log(`✅ Sujet choisi : ${generatedEntry.topic}`);
+        console.log("\n--- CONTENU ---\n", generatedEntry.content);
+
+        // SAUVEGARDE DE LA RÉPONSE COMPLÈTE DANS L'HISTORIQUE
+        data.history.push({
+            topic: generatedEntry.topic,
+            content: generatedEntry.content,
+            date: new Date().toISOString()
+        });
+
+        // Limite de l'historique
+        if (data.history.length > data.settings.maxHistoryLength) data.history.shift();
+
+        fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
+        console.log("\n💾 Historique complet mis à jour dans data.json");
+
     } catch (error) {
-        console.error('❌ Erreur lors de la génération:', error.message);
-        
-        // Sauvegarde de l'erreur pour n8n
-        const errorData = {
-            metadata: {
-                generated_at: new Date().toISOString(),
-                status: 'error',
-                error_message: error.message
-            },
-            error: true
-        };
-        
-        await fs.writeFile(OUTPUT_FILE, JSON.stringify(errorData, null, 2));
+        console.error("❌ Erreur :", error.message);
         process.exit(1);
     }
 }
 
-// Exécution si appelé directement
-if (require.main === module) {
-    main();
-}
-
-module.exports = { LinkedInPostGenerator };
+main();

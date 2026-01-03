@@ -1,1 +1,33 @@
-{"topics": ["Pourquoi Next.js App Router change la donne pour le SEO", "Tailwind CSS : gain de temps ou code sale ? Mon avis", "Node.js vs Go en 2026 : quel choix pour un backend scalable ?", "Comment TypeScript m'a sauvé d'un bug critique en production", "Optimiser le LCP sur une application React complexe", "L'importance des Server Components dans l'architecture moderne", "Docker vs Podman : lequel choisir pour vos containers ?", "Les patterns de design qui m'ont fait gagner des heures de debug", "Comment j'automatise mes tests avec Jest et Cypress", "Les pièges cachés de l'asynchrone en JavaScript", "Pourquoi je recommande toujours React Query aux équipes", "L'art du code review : transformer les critiques en opportunités", "Performance React : memo, useMemo, useCallback, quand et pourquoi ?", "Les outils de monitoring qui m'ont sauvé des plantages nocturnes", "Comment structurer une API REST pour éviter les problèmes", "Les shortcuts VS Code qui ont décuplé ma productivité", "Gestion d'état : Redux, Zustand, ou Context API ?", "Sécurité web : les vulnérabilités que tout dev doit connaître"], "history": [], "settings": {"maxHistoryLength": 30, "postLength": {"min": 1000, "max": 1800}, "tone": "expert mais accessible", "includeHashtags": true, "maxHashtags": 4}}
+{
+  "topics": [
+    "Pourquoi Next.js App Router change la donne pour le SEO",
+    "Tailwind CSS : gain de temps ou code sale ? Mon avis",
+    "Node.js vs Go en 2026 : quel choix pour un backend scalable ?",
+    "Comment TypeScript m'a sauvé d'un bug critique en production",
+    "Optimiser le LCP sur une application React complexe",
+    "L'importance des Server Components dans l'architecture moderne",
+    "Docker vs Podman : lequel choisir pour vos containers ?",
+    "Les patterns de design qui m'ont fait gagner des heures de debug",
+    "Comment j'automatise mes tests avec Jest et Cypress",
+    "Les pièges cachés de l'asynchrone en JavaScript",
+    "Pourquoi je recommande toujours React Query aux équipes",
+    "L'art du code review : transformer les critiques en opportunités",
+    "Performance React : memo, useMemo, useCallback, quand et pourquoi ?",
+    "Les outils de monitoring qui m'ont sauvé des plantages nocturnes",
+    "Comment structurer une API REST pour éviter les problèmes",
+    "Les shortcuts VS Code qui ont décuplé ma productivité",
+    "Gestion d'état : Redux, Zustand, ou Context API ?",
+    "Sécurité web : les vulnérabilités que tout dev doit connaître"
+  ],
+  "history": [ ],
+  "settings": {
+    "maxHistoryLength": 30,
+    "postLength": {
+      "min": 1000,
+      "max": 1800
+    },
+    "tone": "expert mais accessible",
+    "includeHashtags": true,
+    "maxHashtags": 4
+  }
+}
