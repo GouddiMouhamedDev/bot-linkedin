@@ -1,0 +1,28 @@
+{
+  "name": "linkedin-bot",
+  "version": "1.0.0",
+  "description": "LinkedIn automation bot using Gemini AI and Puppeteer",
+  "main": "index.js",
+  "scripts": {
+    "generate": "node generator.js",
+    "post": "node poster.js",
+    "start": "npm run generate && npm run post"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.7.1",
+    "puppeteer": "^21.0.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "keywords": [
+    "linkedin",
+    "automation",
+    "ai",
+    "puppeteer",
+    "gemini"
+  ],
+  "author": "",
+  "license": "MIT"
+}

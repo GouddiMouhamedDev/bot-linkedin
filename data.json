@@ -1,0 +1,35 @@
+{
+  "topics": [
+    "Professional development tips",
+    "Technology trends and insights",
+    "Leadership lessons and experiences",
+    "Career advancement strategies",
+    "Industry news and analysis",
+    "Personal branding and networking",
+    "Work-life balance and productivity",
+    "Innovation and entrepreneurship",
+    "Data science and analytics",
+    "Software engineering best practices",
+    "Remote work and collaboration",
+    "Learning and skill development",
+    "Business strategy and growth",
+    "Personal experiences and lessons learned",
+    "Industry challenges and solutions",
+    "Mentorship and coaching insights",
+    "Workplace culture and diversity",
+    "Future of work and automation",
+    "Project management and leadership",
+    "Client relationship management"
+  ],
+  "history": [],
+  "settings": {
+    "maxHistoryLength": 50,
+    "postLength": {
+      "min": 1300,
+      "max": 1500
+    },
+    "tone": "professional",
+    "includeHashtags": true,
+    "maxHashtags": 5
+  }
+}
