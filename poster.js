@@ -1,3 +1,4 @@
+require('dotenv').config();
 const fs = require('fs').promises;
 const path = require('path');
 const puppeteer = require('puppeteer');
@@ -7,12 +8,32 @@ class LinkedInPoster {
         this.browser = null;
         this.page = null;
         this.postFilePath = path.join(__dirname, 'generated-post.txt');
+        this.cookies = null;
+    }
+
+    async loadCookies() {
+        try {
+            const cookiesEnv = process.env.LINKEDIN_COOKIES;
+            if (!cookiesEnv) {
+                console.log('No cookies provided in LINKEDIN_COOKIES environment variable');
+                return false;
+            }
+
+            this.cookies = JSON.parse(cookiesEnv);
+            console.log(`Loaded ${this.cookies.length} cookies from environment`);
+            return true;
+        } catch (error) {
+            console.error('Error loading cookies:', error);
+            return false;
+        }
     }
 
     async initBrowser() {
         try {
             console.log('Launching browser...');
-            this.browser = await puppeteer.launch({
+            
+            // Configuration du navigateur avec variables d'environnement
+            const browserConfig = {
                 headless: true,
                 args: [
                     '--no-sandbox',
@@ -22,9 +43,27 @@ class LinkedInPoster {
                     '--no-first-run',
                     '--no-zygote',
                     '--single-process',
-                    '--disable-gpu'
+                    '--disable-gpu',
+                    '--disable-software-rasterizer',
+                    '--disable-extensions',
+                    '--disable-background-timer-throttling',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--disable-features=TranslateUI',
+                    '--disable-ipc-flooding-protection'
                 ]
-            });
+            };
+            
+            // Utiliser les chemins Chrome configurés dans l'environnement
+            if (process.env.CHROME_PATH) {
+                browserConfig.executablePath = process.env.CHROME_PATH;
+            } else if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+                browserConfig.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+            } else if (process.env.CHROME_BIN) {
+                browserConfig.executablePath = process.env.CHROME_BIN;
+            }
+            
+            this.browser = await puppeteer.launch(browserConfig);
             
             this.page = await this.browser.newPage();
             
@@ -41,53 +80,81 @@ class LinkedInPoster {
         }
     }
 
-    async login() {
+    async authenticate() {
         try {
-            console.log('Navigating to LinkedIn...');
-            await this.page.goto('https://www.linkedin.com/login', { 
-                waitUntil: 'networkidle2',
-                timeout: 30000 
-            });
-
-            // Wait for login form
-            await this.page.waitForSelector('#username', { timeout: 10000 });
-            
-            // Enter email
-            await this.page.type('#username', process.env.LINKEDIN_EMAIL);
-            console.log('Email entered');
-            
-            // Enter password
-            await this.page.type('#password', process.env.LINKEDIN_PASSWORD);
-            console.log('Password entered');
-            
-            // Click sign in button
-            await this.page.click('[type="submit"]');
-            console.log('Login button clicked');
-            
-            // Wait for navigation (could redirect to home or 2FA page)
-            await this.page.waitForNavigation({ timeout: 30000 });
-            
-            // Check if we're on LinkedIn home page
-            try {
-                await this.page.waitForSelector('[data-test="global-nav"]', { timeout: 10000 });
-                console.log('Login successful - reached LinkedIn home');
-                return true;
-            } catch (error) {
-                // Check for 2FA or other verification
-                const currentUrl = this.page.url();
-                if (currentUrl.includes('checkpoint')) {
-                    console.log('2FA or additional verification required');
-                    throw new Error('2FA_REQUIRED: Manual intervention needed');
+            // Try to use cookies first
+            if (await this.loadCookies()) {
+                console.log('Using cookies for authentication...');
+                
+                // Go to LinkedIn and set cookies
+                await this.page.goto('https://www.linkedin.com/', { 
+                    waitUntil: 'networkidle2',
+                    timeout: 30000 
+                });
+                
+                // Set cookies
+                await this.page.setCookie(...this.cookies);
+                console.log('Cookies loaded successfully');
+                
+                // Reload page to apply cookies
+                await this.page.reload({ waitUntil: 'networkidle2' });
+                
+                // Check if we're authenticated
+                try {
+                    await this.page.waitForSelector('[data-test="global-nav"]', { timeout: 10000 });
+                    console.log('Authentication successful with cookies');
+                    return true;
+                } catch (error) {
+                    console.log('Cookies may be expired, falling back to login...');
                 }
-                throw new Error('Login failed - unexpected page');
             }
+            
+            // Fallback to traditional login if cookies fail
+            console.log('Falling back to traditional login...');
+            await this.traditionalLogin();
+            return true;
             
         } catch (error) {
-            if (error.message.includes('2FA_REQUIRED')) {
-                throw error;
+            console.error('Authentication error:', error);
+            throw error;
+        }
+    }
+    
+    async traditionalLogin() {
+        console.log('Navigating to LinkedIn...');
+        await this.page.goto('https://www.linkedin.com/login', { 
+            waitUntil: 'networkidle2',
+            timeout: 30000 
+        });
+
+        // Wait for login form
+        await this.page.waitForSelector('#username', { timeout: 10000 });
+        
+        // Enter email
+        await this.page.type('#username', process.env.LINKEDIN_EMAIL);
+        console.log('Email entered');
+        
+        // Enter password
+        await this.page.type('#password', process.env.LINKEDIN_PASSWORD);
+        console.log('Password entered');
+        
+        // Click sign in button
+        await this.page.click('[type="submit"]');
+        console.log('Login button clicked');
+        
+        // Wait for navigation
+        await this.page.waitForNavigation({ timeout: 30000 });
+        
+        // Check if we're on LinkedIn home page
+        try {
+            await this.page.waitForSelector('[data-test="global-nav"]', { timeout: 10000 });
+            console.log('Login successful - reached LinkedIn home');
+        } catch (error) {
+            const currentUrl = this.page.url();
+            if (currentUrl.includes('checkpoint')) {
+                throw new Error('2FA_REQUIRED: Manual intervention needed');
             }
-            console.error('Login error:', error);
-            throw new Error('Failed to login to LinkedIn');
+            throw new Error('Login failed - unexpected page');
         }
     }
 
@@ -249,8 +316,8 @@ class LinkedInPoster {
             // Initialize browser
             await this.initBrowser();
             
-            // Login to LinkedIn
-            await this.login();
+            // Authenticate to LinkedIn (cookies or login)
+            await this.authenticate();
             
             // Create and publish the post
             await this.createPost(postContent);
@@ -275,9 +342,12 @@ class LinkedInPoster {
 // Main execution
 async function main() {
     try {
-        // Check for required environment variables
-        if (!process.env.LINKEDIN_EMAIL || !process.env.LINKEDIN_PASSWORD) {
-            throw new Error('LINKEDIN_EMAIL and LINKEDIN_PASSWORD environment variables are required');
+        // Check for authentication method
+        const hasCookies = process.env.LINKEDIN_COOKIES;
+        const hasCredentials = process.env.LINKEDIN_EMAIL && process.env.LINKEDIN_PASSWORD;
+        
+        if (!hasCookies && !hasCredentials) {
+            throw new Error('Either LINKEDIN_COOKIES or both LINKEDIN_EMAIL and LINKEDIN_PASSWORD environment variables are required');
         }
 
         const poster = new LinkedInPoster();

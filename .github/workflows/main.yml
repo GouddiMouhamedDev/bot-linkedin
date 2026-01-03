@@ -22,8 +22,19 @@ jobs:
         node-version: '18'
         cache: 'npm'
         
+    - name: Install Chrome dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget gnupg
+        wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+        echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+        
     - name: Install dependencies
       run: npm install
+      env:
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: false
       
     - name: Generate LinkedIn post
       env:
@@ -32,8 +43,13 @@ jobs:
       
     - name: Post to LinkedIn
       env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         LINKEDIN_EMAIL: ${{ secrets.LINKEDIN_EMAIL }}
         LINKEDIN_PASSWORD: ${{ secrets.LINKEDIN_PASSWORD }}
+        LINKEDIN_COOKIES: ${{ secrets.LINKEDIN_COOKIES }}
+        CHROME_PATH: /usr/bin/google-chrome-stable
+        PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome-stable
+        CHROME_BIN: /usr/bin/google-chrome-stable
       run: npm run post
       
     - name: Commit data changes

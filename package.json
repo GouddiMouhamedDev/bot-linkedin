@@ -6,11 +6,13 @@
   "scripts": {
     "generate": "node generator.js",
     "post": "node poster.js",
-    "start": "npm run generate && npm run post"
+    "start": "npm run generate && npm run post",
+    "generate-only": "node generate-only.js",
+    "demo": "npm run generate-only"
   },
   "dependencies": {
     "@google/generative-ai": "^0.7.1",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.6.1",
     "puppeteer": "^24.34.0"
   },
   "devDependencies": {

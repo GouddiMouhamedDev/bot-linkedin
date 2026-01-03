@@ -1,3 +1,4 @@
+require('dotenv').config();
 const fs = require('fs').promises;
 const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -6,7 +7,7 @@ class LinkedInPostGenerator {
     constructor() {
         this.dataPath = path.join(__dirname, 'data.json');
         this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        this.model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
+        this.model = this.genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     }
 
     async loadData() {
@@ -68,8 +69,8 @@ Additional context:
 Please generate a complete LinkedIn post that would perform well on the platform.`;
     }
 
-    async generatePost(topic, history) {
-        const prompt = this.generatePrompt(topic, history);
+    async generatePost(topic, history, data) {
+        const prompt = this.generatePrompt(topic, history, data);
         
         try {
             console.log(`Generating post for topic: ${topic}`);
