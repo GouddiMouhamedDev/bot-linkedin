@@ -2,7 +2,7 @@ name: LinkedIn Bot Auto Post
 
 on:
   schedule:
-    - cron: '0 9 * * *'
+    - cron: '30 9 * * *'
   workflow_dispatch: 
 
 # ✅ TRÈS IMPORTANT : Autorise l'action à écrire dans le repo
